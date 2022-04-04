@@ -6,11 +6,14 @@
 #include <stdbool.h>
 #include <util/delay.h>
 #include "usart.h"
+#include <stdlib.h>
 
 #define ISR_FREQ 100000L // Interrupt service routine tick is 10 us
 #define OCR0_RELOAD ((F_CPU/ISR_FREQ)-1)
+#define OCR1_RELOAD ((F_CPU/ISR_FREQ)-1)
 
 volatile int ISR_pw1=150, ISR_pw2=150, ISR_cnt=0;
+volatile int ISR_pw=100, ISR_cnt=0, ISR_frc;
 
 // 'Timer 0 output compare A' Interrupt Service Routine
 // This ISR happens at a rate of 100kHz.  It is used
@@ -159,6 +162,20 @@ void ConfigurePins (void)
 	PORTB &= 0x11111110; // PB0 = 0
 }
 
+void init_timer (void)
+{
+    cli();// disable global interupt
+    TCCR1A = 0;// set entire TCCR1A register to 0
+    TCCR1B = 0;// same for TCCR1B
+    TCNT1  = 0;//initialize counter value to 0
+    // set compare match register for 100khz increments
+    OCR1A = OCR1_RELOAD;// = (16*10^6) / (1*100000) - 1 (must be <65536)   
+    TCCR1B |= (1 << WGM12); // turn on CTC mode   
+    TCCR1B |= (1 << CS10); // Set CS10 bits for 1 prescaler  
+    TIMSK1 |= (1 << OCIE1A); // enable timer compare interrupt    
+    sei(); // enable global interupt
+}
+
 // In order to keep this as nimble as possible, avoid
 // using floating point or printf() on any of its forms!
 int main (void)
@@ -167,6 +184,14 @@ int main (void)
 	unsigned long int v;
 	long int count, f;
 	unsigned char LED_toggle=0;
+	// bool isMetal = false; 
+
+	// for servo motor
+	char buf[32];
+	int pw;
+	DDRB=0b00000001; // PB0 (pin 14) configured as output
+	init_timer();
+	usart_init(); // configure the usart and baudrate
 	
 	usart_init(); // configure the usart and baudrate
 	adc_init();
@@ -214,7 +239,25 @@ int main (void)
 			usart_pstr("Hz, count=");
 			PrintNumber(count, 10, 6);
 			usart_pstr("          \r");
-		}
+			if(f>55600) {
+				// isMetal = true;
+				// usart_pstr("Metal detected");
+
+				printf("New pulse width: ");
+				usart_gets(buf, sizeof(buf)-1); // wait here until data is received
+		
+				printf("\n");
+				pw=atoi(buf);
+				if( (pw>=60) && (pw<=240) )
+				{
+					ISR_pw=pw;
+				}
+				else
+				{
+					printf("%d is out of the valid range\r\n", pw);
+				}
+					}
+				}
 		else
 		{
 			usart_pstr("NO SIGNAL                     \r");
