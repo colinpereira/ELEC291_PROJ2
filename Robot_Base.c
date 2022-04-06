@@ -199,7 +199,7 @@ void moveArm() {
 
 	waitms(2500);
 	
-	for (int i = 160; i > ArmUp; i-=10) {
+	for (int i = 230; i > ArmUp; i-=10) {
 		pw1_move500ms(i);
 	}
 
@@ -244,7 +244,6 @@ void moveCarBackwards() {
 
 	PORTD &= ~(1<<3); // PD3=0 --> 11110111
 	PORTD &= ~(1<<5); // PD5=0 --> 11011111
-	PORTD = 0b01010000;	
 }
 
 void moveCarForwards() {
@@ -254,7 +253,6 @@ void moveCarForwards() {
 
 	PORTD &= ~(1<<4); // PD4=0
 	PORTD &= ~(1<<6); // PD6=0 
-	// PORTD = 0b10101111;	
 }
 
 void turnright() {
@@ -326,30 +324,15 @@ int main (void)
 			PrintNumber(count, 10, 6);
 			usart_pstr("          \r");
 
-			if (f > 58100) { 
+			if (f > 59800) { 
 				stopCar();
-				waitms(500);
+				waitms(100);
 				moveCarBackwards();
-				waitms(2000);
+				waitms(250);
 				stopCar();
 				moveArm();
 			}
 
 		}
-		
-
-// right wheel - pin 5, pin 6
-// if pin 5 = 1 and pin 6 = 0 --> go forward
-// if pin 6 == 1 and pin 5 == 0 --> go backward
-
-// left wheel 
-// if pin 3 == 1, pin 4 == 0  go forward
-// if pin 3 == 0, pin 4 == 1 go backward
-
-
-		//move forward
-		//(find coin)
-		//
-
 	}
 }
