@@ -324,7 +324,7 @@ int main (void)
 			PrintNumber(count, 10, 6);
 			usart_pstr("          \r");
 
-			if (f > 59800) { 
+			if (f > 58100) { 
 				stopCar();
 				waitms(100);
 				moveCarBackwards();
