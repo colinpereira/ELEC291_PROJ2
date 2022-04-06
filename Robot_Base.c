@@ -285,39 +285,14 @@ void turnRight() {
 }
 
 //uturn when perimeter detector detects change in barrier
-void uTurn() {	// this isnt donr yet - NEEDS TO BE FIXED
-	// PORTD &= ~(1<<3); // PD3=0
-	// PORTD |= (1<<4); // PD4=1
+// void uTurn() {	// this isnt donr yet - NEEDS TO BE FIXED
+// 	PORTD &= ~(1<<3); // PD3=0
+// 	PORTD |= (1<<4); // PD4=1
 
-	// PORTD |= (1<<5); // PD5=1
-	// PORTD &= ~(1<<6); // PD6=0
-}
+// 	PORTD |= (1<<5); // PD5=1
+// 	PORTD &= ~(1<<6); // PD6=0
+// }
 
-void perimeterDetector() {
-		float thresholdVoltage = 1;
-		unsigned long int v0;
-		unsigned long int v1;
-		unsigned int adc;
-		//read voltage
-		adc=adc_read(0);
-		v0 = (adc*5000L)/1023L;
-
-		//read voltage
-		adc=adc_read(1);
-		v1=(adc*5000L)/1023L;
-
-		if ((v0 || v1) > thresholdVoltage) {
-			moveCarBackwards();
-			waitms(500);
-			stopCar();
-			waitms(200);
-			turnleft();
-			waitms(200);
-			turnright();
-			waitms(200);
-		}
-
-}
 
 // In order to keep this as nimble as possible, avoid
 // using floating point or printf() on any of its forms!
@@ -325,6 +300,9 @@ int main (void)
 {
 	unsigned int adc;
 	long int count, f;
+	unsigned long int v0;
+	unsigned long int v1;
+		
 	//unsigned char LED_toggle=3;
 
 	usart_init(); // configure the usart and baudrate
@@ -344,37 +322,48 @@ int main (void)
 
 	while(1)
 	{
-		unsigned long int v0;
-		unsigned long int v1;
-		unsigned int adc;
-
 		moveCarForwards(); //forward on
 
-		// float thresholdVoltage = 0.5;
-		// //read voltage
-		// adc=adc_read(0);
-		// v0 = (adc*5000L)/1023L;
+		float thresholdVoltage = 0.5;
+		
+		//read voltage
+		adc=adc_read(0);
+		v0 = (adc*5)/1023L;
 
-		// //read voltage
-		// adc=adc_read(1);
-		// v1=(adc*5000L)/1023L;
+		//read voltage
+		adc=adc_read(1);
+		v1=(adc*5)/1023L;
 
-		// if ((v0 || v1) > thresholdVoltage) {
-		// 	moveCarBackwards();
-		// 	waitms(1000);
-		// 	stopCar();
-		// 	waitms(1000);
-		// }
+		if (v1 > thresholdVoltage || v0 > thresholdVoltage) {
+			stopCar();
+			waitms(1000);
+			moveCarBackwards();
+			waitms(2000);
+			//stopCar();
+			//waitms(1000);
+		}
+		
 		
 		//without coin 55300 - 55582
 		//with coin    55590 - 55870
 		
 		count=GetPeriod(100);
 		
-
 		if(count>0)
 		{
 			
+			usart_pstr("ADC[0]=");
+			PrintNumber(v0/1000, 10, 1);
+			usart_pstr(".");
+			PrintNumber(v0%1000, 10, 3);
+			usart_pstr("V ");
+
+			usart_pstr("ADC[1]=");
+			PrintNumber(v1/1000, 10, 1);
+			usart_pstr(".");
+			PrintNumber(v1%1000, 10, 3);
+			usart_pstr("V ");
+
 			f=(F_CPU*100L)/count;
 			usart_pstr("f=");
 			PrintNumber(f, 10, 7);
@@ -391,10 +380,6 @@ int main (void)
 				stopCar();
 				moveArm();
 			}
-			
-			//perimeterDetector();
-
-	
 		}
 	}
 }
