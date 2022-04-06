@@ -229,30 +229,32 @@ void moveArm() {
 
 
 void stopCar(){
-	PORTD = 0b00000000;
-	// PORTD &= ~(1<<3); // PD3=0
-	// PORTD &= ~(1<<4); // PD4=0
-	// PORTD &= ~(1<<5); // PD5=0
-	// PORTD &= ~(1<<6); // PD6=0
+	//PORTD = 0b00000000;
+	PORTD &= ~(1<<3); // PD3=0
+	PORTD &= ~(1<<4); // PD4=0
+	PORTD &= ~(1<<5); // PD5=0
+	PORTD &= ~(1<<6); // PD6=0
 
 }
 
 void moveCarBackwards() {
-	// PORTD = 0b01010000;
+	//PORTD = 0b01010000;
 	PORTD |= (1<<4); // PD4=1 --> 00010000
 	PORTD |= (1<<6); // PD6=1 --> 00100000
 
 	PORTD &= ~(1<<3); // PD3=0 --> 11110111
 	PORTD &= ~(1<<5); // PD5=0 --> 11011111
+	PORTD = 0b01010000;	
 }
 
 void moveCarForwards() {
-	// PORTD = 0b00101000;
+	//PORTD = 0b00101000;
 	PORTD |= (1<<3); // PD3=1
 	PORTD |= (1<<5); // PD5=1
 
 	PORTD &= ~(1<<4); // PD4=0
 	PORTD &= ~(1<<6); // PD6=0 
+	// PORTD = 0b10101111;	
 }
 
 void turnright() {
@@ -277,7 +279,6 @@ void turnleft() {
 int main (void)
 {
 	unsigned int adc;
-	unsigned long int v;
 	long int count, f;
 	//unsigned char LED_toggle=3;
 
@@ -304,12 +305,11 @@ int main (void)
 
 		//parameter detector
 		adc=adc_read(0);
-		v=(adc*5000L)/1023L;
+		unsigned long int v=(adc*5000L)/1023L;
 
 		//parameter detector
 		adc=adc_read(1);
 		v=(adc*5000L)/1023L;
-		
 		//--------------------------
 
 		//without coin 55300 - 55582
@@ -328,9 +328,9 @@ int main (void)
 
 			if (f > 58100) { 
 				stopCar();
-				waitms(100);
+				waitms(500);
 				moveCarBackwards();
-				waitms(300);
+				waitms(2000);
 				stopCar();
 				moveArm();
 			}
