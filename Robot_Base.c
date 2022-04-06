@@ -10,6 +10,8 @@
 #define ISR_FREQ 100000L // Interrupt service routine tick is 10 us
 #define OCR0_RELOAD ((F_CPU/ISR_FREQ)-1)
 
+#define COIN_LIMIT 20
+
 //Arm defailt (iup) = 110
 volatile int ISR_pw1=110, ISR_pw2=170, ISR_cnt=0;
 
@@ -226,7 +228,18 @@ void moveArm() {
 //if pd6 = 1, pd5 = 0 then wheel moves forwards
 //if pd6 = 0, pd5 = 1 then wheel moves backwards
 
-
+/*
+	Returns True if the number of coins have reached 20 
+	countCoin is the number of coins the robot has picked up so far
+*/
+// bool coinLimitCheck(int countCoin) {
+// 	if (countCoin == COIN_LIMIT) {
+// 		return true;
+// 	} else (
+// 		countCoin++;
+// 	)
+// 	return false;
+// }
 
 void stopCar(){
 	//PORTD = 0b00000000;
@@ -271,6 +284,35 @@ void turnleft() {
 	PORTD &= ~(1<<5); // PD5=0
 }
 
+//uturn when perimeter detector detects change in barrier
+void uTurn() {	// this isnt donr yet - NEEDS TO BE FIXED
+	// PORTD &= ~(1<<3); // PD3=0
+	// PORTD |= (1<<4); // PD4=1
+
+	// PORTD |= (1<<5); // PD5=1
+	// PORTD &= ~(1<<6); // PD6=0
+}
+
+void perimeterDetector() {
+		float thresholdVoltage = 1;
+		unsigned long int v0;
+		unsigned long int v1;
+		unsigned int adc;
+		//read voltage
+		adc=adc_read(0);
+		v0 = (adc*5000L)/1023L;
+
+		//read voltage
+		adc=adc_read(1);
+		v1=(adc*5000L)/1023L;
+
+		if ((v0 || v1) > thresholdVoltage) {
+			moveCarBackwards();
+			waitms(500);
+			stopCar();
+		}
+
+}
 
 // In order to keep this as nimble as possible, avoid
 // using floating point or printf() on any of its forms!
@@ -297,23 +339,59 @@ int main (void)
 
 	while(1)
 	{
-		//stopCar();
+		unsigned long int v0;
+		unsigned long int v1;
+		unsigned int adc;
+
 		moveCarForwards(); //forward on
 
+		//test---------------------------
 
-		//parameter detector
+		// float thresholdVoltage = 1;
+		// //read voltage
+		// adc=adc_read(0);
+		// v0 = (adc*5000L)/1023L;
+
+		// //read voltage
+		// adc=adc_read(1);
+		// v1=(adc*5000L)/1023L;
+
+		// if ((v0 || v1) > thresholdVoltage) {
+		// 	moveCarBackwards();
+		// 	waitms(500);
+		// 	stopCar();
+		// }
+
+//----------------------------------------------
+		unsigned int v;
 		adc=adc_read(0);
-		unsigned long int v=(adc*5000L)/1023L;
-
-		//parameter detector
+		v=(adc*5000L)/1023L;
+		usart_pstr("ADC[0]=0x");
+		PrintNumber(adc, 16, 3);
+		usart_pstr(", ");
+		PrintNumber(v/1000, 10, 1);
+		usart_pstr(".");
+		PrintNumber(v%1000, 10, 3);
+		usart_pstr("V ");
+		
 		adc=adc_read(1);
 		v=(adc*5000L)/1023L;
-		//--------------------------
+		usart_pstr("ADC[1]=0x");
+		PrintNumber(adc, 16, 3);
+		usart_pstr(", ");
+		PrintNumber(v/1000, 10, 1);
+		usart_pstr(".");
+		PrintNumber(v%1000, 10, 3);
+		usart_pstr("V ");
+		//---------------------------------
+		
 
 		//without coin 55300 - 55582
 		//with coin    55590 - 55870
 		
 		count=GetPeriod(100);
+		
+
 		if(count>0)
 		{
 			
@@ -324,6 +402,7 @@ int main (void)
 			PrintNumber(count, 10, 6);
 			usart_pstr("          \r");
 
+			// if the coin is detected
 			if (f > 58100) { 
 				stopCar();
 				waitms(100);
@@ -332,7 +411,10 @@ int main (void)
 				stopCar();
 				moveArm();
 			}
+			
+			//perimeterDetector();
 
+	
 		}
 	}
 }
