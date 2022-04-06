@@ -174,44 +174,49 @@ void pw2_move500ms(int pw2Value) {
 	waitms(200);
 }
 
-void turnMagnetOff() {
-	PORTD &= ~(1<<2); // PD2=0
-}
-
-void turnMagnetOn() {
-	PORTD |= (1<<2); // PD2=1
-}
-
 
 //Sequence of movements which moves robot arm
 //PW1 = UPPER MOTOR (Magnet)  - PIN 15 
 //PW2 = LOWER MOTOR (Base) - PIN 14 
 void moveArm() {
 	
-	int OverBasketPosition	 = 110; 
+	int OverBasketPosition	 = 120; 
 	int OverCoinPosition	 = 170;	
 	int ArmDown				 = 240; //position of arm lower position
 	int ArmUp				 = 110; //position of arm upper position
 
 	turnMagnetOn();
-
 	ISR_pw1 = ArmDown; //arm down
-
 	waitms(2500);
-	
-	for (int i = 160; i > ArmUp; i-=10) {
-		pw1_move500ms(i);
-	}
+	pw1_move500ms(220);
+	pw1_move500ms(200);
+	pw1_move500ms(180);
+	pw1_move500ms(160);
+	pw1_move500ms(140);
+	pw1_move500ms(110); //arm up
 
-	for (int i = OverCoinPosition; i > OverBasketPosition; i-=10) {
-		pw2_move500ms(i);
-	}
-
+	//lower motor
+	// pw2_move500ms(160);
+	// pw2_move500ms(150);
+	// pw2_move500ms(140);
+	// pw2_move500ms(130);
+	ISR_pw2 = OverBasketPosition; // ISR_pw2 is for pin 14
 	waitms(1500);
+
 	turnMagnetOff();
+
 	waitms(500);
+
 	ISR_pw2 = OverCoinPosition;
 	waitms(2500);
+}
+
+void turnMagnetOn() {
+	PORTD |= (1<<2); // PD2=1
+}
+
+void turnMagnetOff() {
+	PORTD &= ~(1<<2); // PD2=0
 }
 
 //PD3-6 used for wheels
@@ -229,25 +234,21 @@ void moveArm() {
 
 
 void stopCar(){
-	PORTD = 0b00000000;
-	// PORTD &= ~(1<<3); // PD3=0
-	// PORTD &= ~(1<<4); // PD4=0
-	// PORTD &= ~(1<<5); // PD5=0
-	// PORTD &= ~(1<<6); // PD6=0
-
-}
-
-void moveCarBackwards() {
-	// PORTD = 0b01010000;
-	PORTD |= (1<<4); // PD4=1 --> 00010000
-	PORTD |= (1<<6); // PD6=1 --> 00100000
-
-	PORTD &= ~(1<<3); // PD3=0 --> 11110111
-	PORTD &= ~(1<<5); // PD5=0 --> 11011111
+	PORTD &= ~(1<<3); // PD3=0
+	PORTD &= ~(1<<4); // PD4=0
+	PORTD &= ~(1<<5); // PD5=0
+	PORTD &= ~(1<<6); // PD6=0
 }
 
 void moveCarForwards() {
-	// PORTD = 0b00101000;
+	PORTD |= (1<<4); // PD4=1
+	PORTD |= (1<<6); // PD6=1
+
+	PORTD &= ~(1<<3); // PD3=0
+	PORTD &= ~(1<<5); // PD5=0 
+}
+
+void moveCarBackwards() {
 	PORTD |= (1<<3); // PD3=1
 	PORTD |= (1<<5); // PD5=1
 
@@ -279,7 +280,7 @@ int main (void)
 	unsigned int adc;
 	unsigned long int v;
 	long int count, f;
-	//unsigned char LED_toggle=3;
+	unsigned char LED_toggle=3;
 
 	usart_init(); // configure the usart and baudrate
 	adc_init();
@@ -298,9 +299,7 @@ int main (void)
 
 	while(1)
 	{
-		//stopCar();
-		moveCarForwards(); //forward on
-
+		//moveCarForwards(); //forward on
 
 		//parameter detector
 		adc=adc_read(0);
@@ -320,36 +319,21 @@ int main (void)
 		{
 			
 			f=(F_CPU*100L)/count;
-			usart_pstr("f=");
-			PrintNumber(f, 10, 7);
-			usart_pstr("Hz, count=");
-			PrintNumber(count, 10, 6);
-			usart_pstr("          \r");
-
-			if (f > 58100) { 
-				stopCar();
-				waitms(100);
+			// usart_pstr("f=");
+			// PrintNumber(f, 10, 7);
+			// usart_pstr("Hz, count=");
+			// PrintNumber(count, 10, 6);
+			// usart_pstr("          \r");
+			if (f > 55600) {
+                stopCar()
 				moveCarBackwards();
-				waitms(300);
+				delay(500);
 				stopCar();
 				moveArm();
 			}
 
+
 		}
 		
-
-// right wheel - pin 5, pin 6
-// if pin 5 = 1 and pin 6 = 0 --> go forward
-// if pin 6 == 1 and pin 5 == 0 --> go backward
-
-// left wheel 
-// if pin 3 == 1, pin 4 == 0  go forward
-// if pin 3 == 0, pin 4 == 1 go backward
-
-
-		//move forward
-		//(find coin)
-		//
-
 	}
 }

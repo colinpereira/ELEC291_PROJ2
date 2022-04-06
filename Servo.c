@@ -76,7 +76,6 @@ void main (void)
 	char buf[32];
 	int pw;
 	
-	DDRB=0b00000001; // PB0 (pin 14) configured as output
 	//TCCR1B |= _BV(CS10);   // set prescaler to Clock/1
 	//TIMSK1 |= _BV(OCIE1A); // output compare match interrupt for register A
 	//sei(); // enable global interupt
