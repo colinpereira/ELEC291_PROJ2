@@ -189,7 +189,6 @@ void turnMagnetOn() {
 //PW1 = UPPER MOTOR (Magnet)  - PIN 15 
 //PW2 = LOWER MOTOR (Base) - PIN 14 
 void moveArm() {
-	
 	int OverBasketPosition	 = 110; 
 	int OverCoinPosition	 = 170;	
 	int ArmDown				 = 240; //position of arm lower position
@@ -344,10 +343,7 @@ int main (void)
 		unsigned int adc;
 
 		moveCarForwards(); //forward on
-
-		//test---------------------------
-
-		
+			
 		//read voltage
 		adc=adc_read(0);
 		v0 = (adc*5000L)/1023L;
@@ -355,15 +351,6 @@ int main (void)
 		//read voltage
 		adc=adc_read(1);
 		v1=(adc*5000L)/1023L;
-
-		if ((v0 || v1) > thresholdVoltage) {
-			stopCar();
-			waitms(200);
-			moveCarBackwards();
-			waitms(500);
-			stopCar();
-			waitms(200);
-		}
 
 //----------------------------------------------
 		unsigned int v;
@@ -386,7 +373,7 @@ int main (void)
 		usart_pstr(".");
 		PrintNumber(v%1000, 10, 3);
 		usart_pstr("V ");
-		//---------------------------------
+//--------------------------------------------
 		
 
 		//without coin 55300 - 55582
@@ -416,8 +403,16 @@ int main (void)
 			}
 			
 			//perimeterDetector();
-
-	
+			if ((v0 > thresholdVoltage) || (v1 > thresholdVoltage)) {
+				stopCar();
+				waitms(50);
+				moveCarBackwards();
+				waitms(50);
+				turnright();
+				waitms(200);
+				stopCar();
+				waitms(50);
+			}
 		}
 	}
 }
