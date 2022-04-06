@@ -268,7 +268,7 @@ void moveCarForwards() {
 	PORTD &= ~(1<<6); // PD6=0 
 }
 
-void turnright() {
+void turnLeft() {
 	PORTD &= ~(1<<3); // PD3=0
 	PORTD |= (1<<4); // PD4=1
 
@@ -276,7 +276,7 @@ void turnright() {
 	PORTD &= ~(1<<6); // PD6=0
 }
 
-void turnleft() {
+void turnRight() {
 	PORTD &= ~(1<<4); // PD4=0
 	PORTD |= (1<<3); // PD3=1
 
@@ -310,6 +310,11 @@ void perimeterDetector() {
 			moveCarBackwards();
 			waitms(500);
 			stopCar();
+			waitms(200);
+			turnleft();
+			waitms(200);
+			turnright();
+			waitms(200);
 		}
 
 }
@@ -345,9 +350,7 @@ int main (void)
 
 		moveCarForwards(); //forward on
 
-		//test---------------------------
-
-		// float thresholdVoltage = 1;
+		// float thresholdVoltage = 0.5;
 		// //read voltage
 		// adc=adc_read(0);
 		// v0 = (adc*5000L)/1023L;
@@ -358,34 +361,11 @@ int main (void)
 
 		// if ((v0 || v1) > thresholdVoltage) {
 		// 	moveCarBackwards();
-		// 	waitms(500);
+		// 	waitms(1000);
 		// 	stopCar();
+		// 	waitms(1000);
 		// }
-
-//----------------------------------------------
-		unsigned int v;
-		adc=adc_read(0);
-		v=(adc*5000L)/1023L;
-		usart_pstr("ADC[0]=0x");
-		PrintNumber(adc, 16, 3);
-		usart_pstr(", ");
-		PrintNumber(v/1000, 10, 1);
-		usart_pstr(".");
-		PrintNumber(v%1000, 10, 3);
-		usart_pstr("V ");
 		
-		adc=adc_read(1);
-		v=(adc*5000L)/1023L;
-		usart_pstr("ADC[1]=0x");
-		PrintNumber(adc, 16, 3);
-		usart_pstr(", ");
-		PrintNumber(v/1000, 10, 1);
-		usart_pstr(".");
-		PrintNumber(v%1000, 10, 3);
-		usart_pstr("V ");
-		//---------------------------------
-		
-
 		//without coin 55300 - 55582
 		//with coin    55590 - 55870
 		
