@@ -402,17 +402,17 @@ int main (void)
 				moveArm();
 			}
 			
-			//perimeterDetector();
-			if ((v0 > thresholdVoltage) || (v1 > thresholdVoltage)) {
-				stopCar();
-				waitms(50);
-				moveCarBackwards();
-				waitms(50);
-				turnright();
-				waitms(200);
-				stopCar();
-				waitms(50);
-			}
+			// //perimeterDetector();
+			// if ((v0 > thresholdVoltage) || (v1 > thresholdVoltage)) {
+			// 	stopCar();
+			// 	waitms(50);
+			// 	moveCarBackwards();
+			// 	waitms(500);
+			// 	turnright();
+			// 	waitms(1000);
+			// 	stopCar();
+			// 	waitms(50);
+			// }
 		}
 	}
 }
