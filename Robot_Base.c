@@ -393,26 +393,26 @@ int main (void)
 			usart_pstr("          \r");
 
 			// if the coin is detected
-			if (f > 58100) { 
+			if (f > 58050) { 
 				stopCar();
 				waitms(100);
 				moveCarBackwards();
-				waitms(250);
+				waitms(300);
 				stopCar();
 				moveArm();
 			}
 			
-			// //perimeterDetector();
-			// if ((v0 > thresholdVoltage) || (v1 > thresholdVoltage)) {
-			// 	stopCar();
-			// 	waitms(50);
-			// 	moveCarBackwards();
-			// 	waitms(500);
-			// 	turnright();
-			// 	waitms(1000);
-			// 	stopCar();
-			// 	waitms(50);
-			// }
+			//perimeterDetector();
+			if ((v0 > thresholdVoltage) || (v1 > thresholdVoltage)) {
+				stopCar();
+				waitms(50);
+				moveCarBackwards();
+				waitms(500);
+				turnright();
+				waitms(1500);
+				stopCar();
+				waitms(50);
+			}
 		}
 	}
 }
